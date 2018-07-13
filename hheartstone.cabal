@@ -1,0 +1,72 @@
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 9494f0c885110b01c2fa744d3c992b7e22dc02a1b6d7716fa69c00374ae2e6e1
+
+name: hheartstone
+version: 0.0.0.1
+synopsis: See readme.md
+description: See readme.md for description.
+category: project
+homepage: https://github.com/tonyday567/hheartstone#readme
+bug-reports: https://github.com/tonyday567/hheartstone/issues
+author: Tony Day
+maintainer: tonyday567@gmail.com
+copyright: Tony Day (c) 2017
+license: BSD3
+license-file: LICENSE
+build-type: Simple
+cabal-version: >= 1.10
+extra-source-files:
+  readme.md
+  stack.yaml
+source-repository head
+  type: git
+  location: https://github.com/tonyday567/hheartstone
+executable hheartstone
+  main-is: r&d.lhs
+  hs-source-dirs:
+    app
+  default-extensions:
+    NegativeLiterals
+    NoImplicitPrelude
+    OverloadedStrings
+    UnicodeSyntax
+  ghc-options:
+    -funbox-strict-fields
+    -fforce-recomp
+    -threaded
+    -rtsopts
+    -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , optparse-generic
+    , protolude
+    , aeson
+    , text
+    , bytestring
+    , vector
+    , unordered-containers
+    , formatting
+    , scientific
+  default-language:
+    Haskell2010
+library
+  hs-source-dirs:
+    src
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wredundant-constraints
+  exposed-modules:
+    Hearth
+  build-depends:
+      base >=4.7 && <5
+    , lens
+    , protolude
+    , aeson
+  default-language:
+    Haskell2010
