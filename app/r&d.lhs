@@ -30,8 +30,9 @@ Simulator in python: [fireplace](https://github.com/jleclanche/fireplace)
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LambdaCase #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts #-}
 \end{code}
 
 [libraries](https://www.stackage.org/)
@@ -39,257 +40,139 @@ Simulator in python: [fireplace](https://github.com/jleclanche/fireplace)
 
 - [protolude](https://www.stackage.org/package/protolude)
 
+- [readert design](https://www.fpcomplete.com/blog/2017/06/readert-design-pattern)
+
 \begin{code}
-import Protolude hiding ((%))
+import Protolude
 import Data.Aeson
-import qualified Data.ByteString.Lazy as B
-import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as Map
-import qualified Data.Vector as V
-import Formatting
 import Data.Scientific
-\end{code}
-
-code
-===
-
-- [hoogle](https://www.stackage.org/package/hoogle)
-
-ADT
----
-
-\begin{code}
-
-data Card = Card
-  { cost :: Int
-  , attack :: Int
-  , health :: Int
-  , name :: Text
-  , mechanics :: [Mechanics]
-  , cardType :: CardType
-  , cardState :: [CardState]
-  }
-
-data Mechanics =
-  Charge |
-  Battlecry [Target -> [Event]] |
-  Deathrattle [Target -> [Event]] |
-  Powers [Position -> Target -> [Event]] |
-  Rush
-
-data Target = Target PlayerTag Position
-
-data CardType = Spell | Minion | Weapon | Hero | HeroPower | Buffs deriving (Eq, Show)
-
-data CardState = Rushed Int | Green Int | Frozen | Dormant Int | Damaged Int | Buffed Int Int
-
-data State = State
-  { firstPlayer :: Player
-  , secondPlayer :: Player
-  , playerTurn :: PlayerTag
-  , rounds :: [[Action]]
-  }
-
-data PlayerTag = First | Second deriving (Eq, Show)
-
-data Action =
-  StartTurn |
-  Play Position |
-  EndTurn
-  deriving (Eq, Show)
-
-data Position =
-  Deck Int | Hand Int | Board Int | WeaponPos | HeroPos deriving (Eq, Show)
-
-data Event =
-  Destroy PlayerTag Position |
-  Create PlayerTag Position |
-  Mod PlayerTag Position (Card -> Card)
-
-type Power = PlayerTag -> Position -> Event
-
-data Player = Player
-  { deck :: [Card]
-  , hand :: [Card]
-  , hero :: Card
-  , weapon :: Maybe Card
-  , mana :: Int
-  , overloads :: Int
-  }
-
+import Hearth
+import Hearth.Json
+import Hearth.Format
+import System.Random.MWC
+import Control.Monad.Primitive
+import Data.List ((!!))
 \end{code}
 
 JSON of cards
----
+--- 
 
 [HearthstoneJSON](https://hearthstonejson.com/docs/cards.html)
 
 [cards](https://api.hearthstonejson.com/v1/latest/enUS/cards.json)
 
+- [x] create a random deck, based on chosen hero
+- [ ] count deck, hand, board
+- [ ] start game
+- [ ] list possible plays
+- [ ] make a play
+
 \begin{code}
 
-unarray :: Value -> [Value]
-unarray = \case
-  Array a -> V.toList a
-  _ -> []
+allClassColls :: (MonadReader Env m) => CardClass -> m [Card]
+allClassColls t = do
+  env <- ask
+  let xs = filter (\x ->
+                     (cardClass x == t) ||
+                     (cardClass x == Neutral))
+           (collectibles env)
+  pure $ xs <> xs
 
-unobject :: Value -> Object
-unobject = \case
-  Object a -> a
-  _ -> Map.empty
+-- put the Gen in a State
+shuffle :: Gen (PrimState IO) -> Int -> [a] -> IO [a]
+shuffle mwc n xs = go n xs []
+  where
+    go _ [] r = pure $ reverse r
+    go n' xs' r
+      | n' == 0 = pure $ reverse r
+      | otherwise = do
+          rv <- uniformR (0,length xs' - 1) mwc
+          let (fir, x:sec) = splitAt rv xs'
+          go (n' - 1) (fir <> sec) (x:r)
 
-unstring :: Value -> Text
-unstring = \case
-  String a -> a
-  _ -> ""
+testInitialGameState :: (MonadReader Env m, MonadIO m) => m (Either Text GameState)
+testInitialGameState = do
+  env <- ask
+  mageCards <- allClassColls Mage
+  druidCards <- allClassColls Druid
+  cc1 <- liftIO $ shuffle (gen env) 30 mageCards
+  cc2 <- liftIO $ shuffle (gen env) 30 druidCards
+  initGame (Mage, cc1) (Druid, cc2)
 
-unnumber :: Value -> Maybe Scientific
-unnumber = \case
-  Number a -> Just a
-  _ -> Nothing
+shuffleTest :: (MonadReader Env m, MonadIO m) => m [Id]
+shuffleTest = do
+  env <- ask
+  let xs = mage $ collectibles env
+  i <- liftIO $ shuffle (gen env) 3 (take (length xs) [0..])
+  return $ ((id <$> xs) !!) <$> i
+  where
+    mage = filter (\x -> cardClass x == Mage)
 
-getJsonCards :: IO [Object]
-getJsonCards = do
-  t <- B.readFile "other/cards.json"
-  pure $ maybe [] (fmap unobject . unarray) (decode t)
-
-countKeys :: [Object] -> Map.HashMap Text Integer
-countKeys = foldl' u Map.empty where
-  u x a = Map.unionWith (+) x (Map.map (const 1) a)
-
-countAllValues :: [Object] -> Map.HashMap (Text, Value) Integer
-countAllValues = foldl' u Map.empty where
-  u x a = Map.unionWith (+) x (Map.fromList $ (\(k,v) -> ((k,v),1)) <$> Map.toList a)
-
-countValues :: Text -> [Object] -> [(Value, Integer)]
-countValues k' xs = ((\((_ , v),x) -> (v, x))) <$> (Map.toList $ Map.filterWithKey (\(k,_) _ -> k ==k') (countAllValues xs))
-
-attrF :: Int -> Text -> [Object] -> Text
-attrF m k xs = h2 k <> (code $ take m $ (\(k',i) -> fK (show k') (fI i)) <$>
-                      (countValues k xs))
-
-attrSF :: Text -> [Object] -> Text
-attrSF k xs = h2 k <> (code $ (\(k',i) -> fK (show k') (fI i)) <$>
-                      (sortBy (comparing fst)) ((\(v,x) -> (unstring v,x)) <$>
-                                                countValues k xs))
-
-attrNF :: Text -> [Object] -> Text
-attrNF k xs = h2 k <>
-  (code $ (\(k',i) -> fK (show k') (fI i)) <$>
-    sortBy (comparing fst)
-     ((\(v,x) -> (unnumber v,x)) <$>
-      countValues k xs))
-
-fK :: Text -> Text -> Text
-fK t1 t2 = sformat ((right 20 ' ' %. stext) % (left 10 ' ' %. stext)) t1 t2
-
-fKR :: Text -> Text -> Text
-fKR t1 t2 = sformat ((right 20 ' ' %. stext) % (right 20 ' ' %. stext)) t1 t2
-
-fI :: (Integral a, Buildable a) => a -> Text
-fI x = sformat commas x
-
-fV :: Int -> Int -> Value -> Text
-fV i _ (String x) = sformat (left i ' ' %. stext) x
-fV i p (Number x) = sformat (right i ' ' %. stext) (fS p x)
-fV i _ x = sformat (right i ' ' %. stext) (show x)
-
-fS :: Int -> Scientific -> Text
-fS p x = case (floatingOrInteger x) of
-  Left _ -> sformat (prec p) x
-  Right (i :: Int) -> sformat commas i
-
-fCard :: Maybe Text -> Map.HashMap Text Value -> Text
-fCard h card =
-  maybe mempty h2 h <>
-  (code $ ((\(k,v) -> fKR k (fV 3 8 v))) <$> (Map.toList card))
-
--- | fixed precision for a Scientific
-prec :: Int -> Format r (Scientific -> r)
-prec n = scifmt Exponent (Just n)
-
-int2Sci :: (Integral a) => a -> Scientific
-int2Sci n = scientific (fromIntegral n) 0
-
--- | place markdown backtics around text
-code :: [Text] -> Text
-code cs = "\n```\n" <> Text.intercalate "\n" cs <> "\n```\n"
-
-h2 :: Text -> Text
-h2 h = h <> "\n---\n"
-
-main :: IO ()
-main = do
-  -- o :: Opts Unwrapped <- unwrapRecord "hheartstone"
-  -- let n = fromMaybe 10 (number o)
-  xs <- getJsonCards
-  let l = length xs
-  let av = fromIntegral (sum (Map.size <$> xs)) / fromIntegral l
-  writeFile "other/json.md" $
+jsonStats :: [Object] -> Text
+jsonStats xs =
     h2 "card set stats" <>
     code ((\(t,s) -> fK t (fS 3 s)) <$>
       [ ("number of cards", int2Sci (length xs))
       , ("attributes per card", fromFloatDigits av)
       ]) <>
     h2 "attribute count" <>
-    (code ((\(k,i) -> fK k (fI i)) <$>
-           (sortBy (comparing (Down . snd)) $
-             Map.toList $ countKeys xs))) <>
-    (mconcat $ zipWith fCard [Just "first card", Just "second card"] (take 2 xs)) <>
+    code ((\(k,i) -> fK k (fI i)) <$>
+           sortBy (comparing (Down . snd))
+             (Map.toList $ countKeys xs)) <>
+    mconcat (zipWith fCard [Just "first card", Just "second card"]
+             (take 2 xs)) <>
     h2 "cards with no cardClass" <>
-    (mconcat $ zipWith fCard (Just . show <$> [0..]) $
-     filter (not . (Map.member "cardClass")) xs) <>
-    (mconcat $ (\x -> attrSF x xs) <$>
+    mconcat (zipWith fCard (Just . show <$> [0..]) $
+     filter (not . Map.member "cardClass") xs) <>
+    mconcat ((`attrSF` xs) <$>
      [ "set"
      , "type"
      , "cardClass"
      , "rarity"
      ]) <>
-    (mconcat $ (\x -> attrNF x xs) <$>
+    mconcat ((`attrNF` xs) <$>
      [ "cost"
      , "health"
      , "attack"
      ]) <>
 
-    (mconcat $ (\x -> attrF 20 x xs) <$>
-     [ "dbfId"
-     , "text"
-     , "artist"
+    mconcat ((\x -> attrF 20 x xs) <$>
+     [ "text"
      , "mechanics"
      , "playRequirements"
      , "collectible"
-     , "flavor"
      , "race"
      , "elite"
      , "referencedTags"
      , "entourage"
-     , "howToEarnGolden"
-     , "howToEarn"
      , "targetingArrowText"
      , "durability"
-     , "hideStats"
      , "faction"
      , "collectionText"
      , "overload"
-     , "spellDamage"
-     , "armor"
-     , "multiClassGroup"
-     , "classes"
-     , "questReward"
      ])
+    where
+      l = length xs
+      av = fromIntegral (sum (Map.size <$> xs)) / fromIntegral l
+
+main :: IO ()
+main = do
+  env' <- setEnv ["CORE", "EXPERT1"]
+  case env' of
+    Left x -> print ("environment problem: " <> x)
+    Right env -> do
+      shuffleIds <- runReaderT shuffleTest env
+      xs <- getJsonCards
+      writeFile "other/json.md" $
+        h2 "shuffle" <> mconcat (art <$> shuffleIds) <>
+        jsonStats xs
+      game <- runReaderT testInitialGameState env
+      case game of
+        Left err -> print $ "game state foobarred: " <> err
+        Right game' ->
+          writeFile "other/testGameState.md" $
+          h2 "test game render" <>
+          renderGame game'
 
 \end{code}
-
-output
----
-
-```include
-other/json.md
-```
-
-workflow
-===
-
-```
-stack build --exec "$(stack path --local-install-root)/bin/hheartstone" --exec "$(stack path --local-bin)/pandoc -f markdown+lhs -i app/example.lhs -t markdown -o readme.md --filter pandoc-include --mathjax"
-```

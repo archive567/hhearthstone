@@ -1,9 +1,3 @@
--- This file has been generated from package.yaml by hpack version 0.28.2.
---
--- see: https://github.com/sol/hpack
---
--- hash: 9494f0c885110b01c2fa744d3c992b7e22dc02a1b6d7716fa69c00374ae2e6e1
-
 name: hheartstone
 version: 0.0.0.1
 synopsis: See readme.md
@@ -41,20 +35,25 @@ executable hheartstone
     -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , optparse-generic
+    , hheartstone
+    , mwc-random
     , protolude
     , aeson
     , text
-    , bytestring
-    , vector
     , unordered-containers
-    , formatting
     , scientific
+    , primitive
+    , mtl
   default-language:
     Haskell2010
 library
   hs-source-dirs:
     src
+  default-extensions:
+    NegativeLiterals
+    NoImplicitPrelude
+    OverloadedStrings
+    UnicodeSyntax
   ghc-options:
     -Wall
     -Wcompat
@@ -63,10 +62,20 @@ library
     -Wredundant-constraints
   exposed-modules:
     Hearth
+    Hearth.Json
+    Hearth.Format
   build-depends:
       base >=4.7 && <5
-    , lens
-    , protolude
     , aeson
+    , bytestring
+    , formatting
+    , mtl
+    , mwc-random
+    , primitive
+    , protolude
+    , scientific
+    , text
+    , unordered-containers
+    , vector
   default-language:
     Haskell2010

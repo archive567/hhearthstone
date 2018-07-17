@@ -13,6 +13,13 @@ Simulator in python: [fireplace](https://github.com/jleclanche/fireplace)
 
 Hearthstone AI [discussion](https://www.reddit.com/r/hearthstone/comments/7l1ob0/i_wrote_a_masters_thesis_on_effective_hearthstone/)
 
+game state
+---
+
+```include
+other/testGameState.md
+```
+
 api
 ---
 

@@ -1,4 +1,6 @@
-card set stats
+shuffle
+---
+<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/GVG_005.png'><img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/CS2_028.png'><img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/ICC_838.png'>card set stats
 ---
 
 ```
@@ -321,31 +323,6 @@ Just 28.0                    1
 Just 29.0                    1
 Just 30.0                    3
 ```
-dbfId
----
-
-```
-Number 40358.0               1
-Number 1702.0                1
-Number 42662.0               1
-Number 30374.0               1
-Number 38566.0               1
-Number 49574.0               1
-Number 2726.0                1
-Number 41126.0               1
-Number 49318.0               1
-Number 678.0                 1
-Number 36450.0               1
-Number 38822.0               1
-Number 47014.0               1
-Number 2214.0                1
-Number 46102.0               1
-Number 13334.0               1
-Number 47382.0               1
-Number 2326.0                1
-Number 49686.0               1
-Number 39000.0               1
-```
 text
 ---
 
@@ -370,31 +347,6 @@ String "Deal $4 damage to a minion. If that kills it, add a copy of it to your\1
 String "[x]<b>Battlecry:</b> The next Murloc\nyou play this turn costs\n\160Health instead of Mana."         1
 String "After you summon a minion, trigger its <b>Deathrattle</b> effect."         1
 String "Whenever a character is healed, gain +2 Attack."         2
-```
-artist
----
-
-```
-String "Ben Wootten"         2
-String "Polygon Pictures, Inc."         1
-String "D. Alexander Gregory"         1
-String "Steve Hui"           2
-String "Josh Harris"         3
-String "Alex Garner"        13
-String "E. Guiton & Nutchapol"         1
-String "Ben Thompson"         3
-String "Craig Elliott"         3
-String "Konstantin Turovec"       121
-String "Cole Eastburn"         5
-String "John Avon"           2
-String "Ron Spears"          3
-String "Jason Chan"          2
-String "J. Meyers & T. Washington"         2
-String "Turovec Konstantin"         1
-String "Doug Alexander"         5
-String "Phroi Gardner"         2
-String "Jaslynn Tham"         1
-String "Michael Komarck"         4
 ```
 mechanics
 ---
@@ -451,31 +403,6 @@ collectible
 
 ```
 Bool True                1,615
-```
-flavor
----
-
-```
-String "Wasn't clever enough to go AROUND the electric fence."         1
-String "Even after all this time, Gul'dan still makes Cho'gall go get donuts and coffee."         1
-String "Universally adored by both control decks and ninjas."         1
-String "Totem-stomping is no longer recommended."         1
-String "George and Karl!  Thank the Light we found you!"         1
-String "\"Rise from your grave!\" - Kel'Thuzad"         1
-String "A masterless shamurai."         1
-String "Are you sure these are the crates that are supposed to go to the Gadgetzan petting zoo?"         1
-String "If you won't come to the tar pits, we'll bring them to you!"         1
-String "I personally prefer some non-ancestral right-the-heck-now healing, but maybe that is just me."         1
-String "All that remained from the first kobold colony: a single talisman and the word \"Flamestrike.\""         1
-String "To truly understand candles, it takes YEARS of quiet contemplation."         1
-String "The Silver Hand is the best paladin organization.  The Argent Crusaders are super jealous."         1
-String "This card makes something really damp.  Oh wait.  That's \"Humidity.\""         1
-String "He keeps earthinating the countryside despite attempts to stop him."         1
-String "Nice spell.  YOINK!"         1
-String "It's not HER fault you didn't put a spinning saw blade on your horse."         1
-String "This guy is excellent at adjusting your haircut and/or height."         1
-String "\"Shout! Shout! Let it all out!\" - Advice to warriors-in-training"         1
-String "You see, it's all about <i>throughput</i>."         1
 ```
 race
 ---
@@ -548,56 +475,6 @@ Array [String "ICC_836",String "EX1_277",String "GVG_001",String "KAR_076",Strin
 Array [String "ICC_808",String "GVG_097",String "UNG_072",String "ICC_807",String "LOOT_131",String "UNG_801",String "UNG_848",String "LOOT_314",String "ICC_835",String "LOOT_137",String "UNG_108",String "FP1_012"]         1
 Array [String "CFM_639",String "CFM_753",String "CFM_305",String "GVG_063",String "CFM_650",String "CFM_685",String "CFM_853",String "BRM_028"]         1
 ```
-howToEarnGolden
----
-
-```
-String "Crafting unlocked in the Prologue, in One Night in Karazhan."         2
-String "Unlocked at Mage Level 55."         1
-String "Unlocked at Hunter Level 53."         1
-String "Unlocked at Rogue Level 51."         1
-String "Crafting unlocked in the Opera, in One Night in Karazhan."        10
-String "Crafting unlocked in The Arachnid Quarter, in the Naxxramas adventure."         6
-String "Unlocked at Warrior Level 59."         1
-String "Unlocked when you have all the Golden Murlocs from the Expert and Basic Sets."         1
-String "Crafting unlocked in the Temple of Orsis, in the League of Explorers adventure."        10
-String "Unlocked at Priest Level 59."         1
-String "Crafting unlocked in the Hall of Explorers, in the League of Explorers adventure."        12
-String "Unlocked at Paladin Level 57."         1
-String "Crafting unlocked in Blackwing Lair, in the Blackrock Mountain adventure."         7
-String "Unlocked at Rogue Level 57."         1
-String "Unlocked at Mage Level 53."         1
-String "Unlocked at Level 44."         2
-String "Unlocked at Hunter Level 55."         1
-String "Crafting unlocked after opening a Whispers of the Old Gods pack."         2
-String "Unlocked at Warlock Level 55."         1
-String "Can be crafted after starting the League of Explorers adventure."         2
-```
-howToEarn
----
-
-```
-String "Unlocked in Molten Core, in the Blackrock Mountain adventure."         6
-String "Unlocked at Level 8."         9
-String "Unlocked in Uldaman, in the League of Explorers adventure."        10
-String "Unlocked in Hidden Laboratory, in the Blackrock Mountain adventure."         6
-String "Unlocked at Level 2."         9
-String "Unlocked when opening a Whispers of the Old Gods pack."         2
-String "Unlocked in Blackwing Lair, in the Blackrock Mountain adventure."         7
-String "Unlocked in the Hall of Explorers, in the League of Explorers adventure."        12
-String "Unlocked by opening a Kobolds & Catacombs pack."         1
-String "Unlocked in the Temple of Orsis, in the League of Explorers adventure."        10
-String "Unlocked in the Parlor, in One Night in Karazhan."        11
-String "Unlocked in The Plague Quarter, in the Naxxramas adventure."         6
-String "Unlocked at Level 4."         9
-String "Unlocked in the Opera, in One Night in Karazhan."        10
-String "Unlocked in The Ruined City, in the League of Explorers adventure."        11
-String "Unlocked in The Military Quarter, in the Naxxramas adventure."         6
-String "Unlocked by starting the League of Explorers adventure."         2
-String "Unlocked when you have all the Murlocs from the Classic Set."         1
-String "Unlocked in The Construct Quarter, in the Naxxramas adventure."         8
-String "Unlocked in the Spire, in One Night in Karazhan."        11
-```
 targetingArrowText
 ---
 
@@ -635,12 +512,6 @@ Number 0.0                   1
 Number 1.0                   6
 Number 6.0                   6
 Number 8.0                   5
-```
-hideStats
----
-
-```
-Bool True                  102
 ```
 faction
 ---
@@ -683,48 +554,4 @@ Number 10.0                  1
 Number 5.0                   1
 Number 3.0                   4
 Number 2.0                  11
-```
-spellDamage
----
-
-```
-Number 5.0                   1
-Number 2.0                   6
-Number 1.0                  17
-```
-armor
----
-
-```
-Number 5.0                  13
-```
-multiClassGroup
----
-
-```
-String "JADE_LOTUS"          3
-String "KABAL"               3
-String "GRIMY_GOONS"         3
-```
-classes
----
-
-```
-Array [String "DRUID",String "ROGUE",String "SHAMAN"]         3
-Array [String "MAGE",String "PRIEST",String "WARLOCK"]         3
-Array [String "HUNTER",String "PALADIN",String "WARRIOR"]         3
-```
-questReward
----
-
-```
-String "UNG_829t1"           1
-String "UNG_116t"            1
-String "UNG_940t8"           1
-String "UNG_067t1"           1
-String "UNG_920t1"           1
-String "UNG_028t"            1
-String "UNG_954t1"           1
-String "UNG_934t1"           1
-String "UNG_942t"            1
 ```
