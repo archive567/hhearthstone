@@ -1,0 +1,487 @@
+<meta charset="utf-8"> <link rel="stylesheet" href="other/lhs.css">
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<h1 id="hheartstone"><a href="https://github.com/tonyday567/hheartstone">hheartstone</a></h1>
+<h2 id="hsreplay-phase">hsreplay phase</h2>
+<ul class="incremental">
+<li>[ ] align with https://hearthsim.info/hsreplay/</li>
+<li>[ ] dtd: https://github.com/HearthSim/HSReplay</li>
+<li>[ ] https://github.com/HearthSim/python-hsreplay</li>
+<li>[ ] half parsed example: https://github.com/HearthSim/hsreplay-test-data/blob/master/hslog-tests/20457_broken_names.power.log</li>
+<li>[ ] https://hearthsim.info/docs/gamestate-protocol/</li>
+<li>[ ] xml</li>
+<li>[ ] [xeno](https://hackage.haskell.org/package/xeno-0.3.4)</li>
+<li>[ ] parse other/example.hsreplay</li>
+<li>[ ] [xmlgen](http://hackage.haskell.org/package/xmlgen-0.6.2.2)</li>
+<li>[ ] build a simple game fragment</li>
+</ul>
+<h2 id="joust">joust</h2>
+<div id="joust-container">
+
+</div>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.0/react.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.0/react-dom.min.js"></script>
+<link rel="stylesheet" href="http://192.168.0.2:8080/dist/joust.css"></link>
+<script type="text/javascript" src="http://192.168.0.2:8080/dist/joust.js"></script>
+<script type="text/javascript">
+  Joust.launcher("joust-container")
+    .height(500)
+    .width(500)
+    .fromUrl("http://192.168.0.2:8080/sample.hsreplay");
+</script>
+<h2 id="test-game-state">test game state</h2>
+<h2 id="test-game-render">test game render</h2>
+<p>first player: Mage h:30 mana: 1/1 deck:26<br> <img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/ICC_099.png' style='width:15%'> <img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/LOOT_394.png' style='width:15%'> <img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/CFM_687.png' style='width:15%'> <img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/CFM_344.png' style='width:15%'><br> <br> <br> <img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/CFM_637.png' style='width:15%'> <img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/ICC_257.png' style='width:15%'> <img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/AT_106.png' style='width:15%'> <img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/NEW1_037.png' style='width:15%'> <img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/GAME_005.png' style='width:15%'><br> second player: Druid h:30 mana: 1/0 deck:26<br> turn: First round: 1 eval: 7.999999999999986<br> plays: [EndButton]</p>
+<h2 id="notes">notes</h2>
+<p>Modelling Heartstone</p>
+<p>Gabrielle on <a href="http://www.haskellforall.com/2013/05/program-imperatively-using-haskell.html">game simulation</a></p>
+<p>Game engine library (console not working in macos): <a href="https://github.com/thomaseding/hearthshroud">heartshroud</a></p>
+<p>Get decks from hearthpwm: <a href="https://github.com/blender/Hearthstone">blender</a> Card manager: <a href="https://github.com/nicuveo/HCM">HCM</a> Simulator in python: <a href="https://github.com/jleclanche/fireplace">fireplace</a></p>
+<p>Hearthstone AI <a href="https://www.reddit.com/r/hearthstone/comments/7l1ob0/i_wrote_a_masters_thesis_on_effective_hearthstone/">discussion</a></p>
+<h2 id="json-of-cards">JSON of cards</h2>
+<p><a href="https://hearthstonejson.com/docs/cards.html">HearthstoneJSON</a></p>
+<p><a href="https://api.hearthstonejson.com/v1/latest/enUS/cards.json">cards</a></p>
+<h1 id="test-output">test output</h1>
+<h2 id="json-stats">json stats</h2>
+<h2 id="shuffle">shuffle</h2>
+<h2 id="card-set-stats"><img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/OG_120.png'><img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/HERO_08b.png'><img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/EX1_274.png'>card set stats</h2>
+<pre><code>number of cards          4,751
+attributes per card    1.120e1</code></pre>
+<h2 id="attribute-count">attribute count</h2>
+<pre><code>id                       4,751
+set                      4,750
+name                     4,750
+dbfId                    4,750
+type                     4,750
+cardClass                4,745
+text                     4,020
+cost                     3,603
+artist                   2,388
+health                   2,147
+mechanics                1,942
+rarity                   1,939
+attack                   1,938
+collectible              1,615
+flavor                   1,597
+playRequirements           673
+race                       597
+elite                      465
+referencedTags             422
+entourage                  293
+howToEarnGolden            291
+howToEarn                  246
+targetingArrowText         123
+durability                 120
+hideStats                  102
+faction                     80
+collectionText              33
+overload                    29
+spellDamage                 24
+armor                       13
+multiClassGroup              9
+classes                      9
+questReward                  9</code></pre>
+<h2 id="first-card">first card</h2>
+<pre><code>set                  TB                 
+cardClass           NEUTRAL             
+cost                0                   
+health              0                   
+name                Golden Legendary    
+dbfId               52,424              
+rarity              LEGENDARY           
+id                  ART_BOT_Bundle_001  
+attack              0                   
+faction             ALLIANCE            
+type                MINION              </code></pre>
+<h2 id="second-card">second card</h2>
+<pre><code>set                 TGT                 
+cardClass           MAGE                
+text                Deal $8 damage to a minion.
+flavor              It&#39;s on the rack next to ice lance, acid lance, and English muffin lance.
+playRequirements    Object (fromList [(&quot;REQ_MINION_TARGET&quot;,Number 0.0),(&quot;REQ_TARGET_TO_PLAY&quot;,Number 0.0)])
+cost                5                   
+collectible         Bool True           
+name                Flame Lance         
+dbfId               2,539               
+rarity              COMMON              
+id                  AT_001              
+type                SPELL               
+artist              Nutthapon Petchthai </code></pre>
+<h2 id="cards-with-no-cardclass">cards with no cardClass</h2>
+<h2 id="section">0</h2>
+<pre><code>set                  TB                 
+entourage           Array [String &quot;FB_LK_BossSetup001c&quot;,String &quot;FB_LK_BossSetup001b&quot;,String &quot;FB_LK_BossSetup001a&quot;]
+name                Innkeeper Health Set
+dbfId               46,187              
+id                  FB_LK_BossSetup001  
+type                ENCHANTMENT         </code></pre>
+<h2 id="section-1">1</h2>
+<pre><code>set                  TB                 
+text                Set the Lich King&#39;s health to 10000.
+ &lt;i&gt;For huge groups only!&lt;/i&gt;
+cost                0                   
+name                MASSIVE Difficulty  
+dbfId               46,184              
+id                  FB_LK_BossSetup001a 
+type                SPELL               </code></pre>
+<h2 id="section-2">2</h2>
+<pre><code>set                  TB                 
+text                Set the Lich King&#39;s health to 3000.
+&lt;i&gt; Good for 10-25 players.&lt;/i&gt;
+cost                0                   
+name                Heroic Difficulty   
+dbfId               46,185              
+id                  FB_LK_BossSetup001b 
+type                SPELL               </code></pre>
+<h2 id="section-3">3</h2>
+<pre><code>set                  TB                 
+text                Set the Lich King&#39;s health to 1500.
+&lt;i&gt;Good for fewer than 10 players.&lt;/i&gt;
+cost                0                   
+name                Normal Difficulty   
+dbfId               46,183              
+id                  FB_LK_BossSetup001c 
+type                SPELL               </code></pre>
+<h2 id="section-4">4</h2>
+<pre><code>cost                0                   
+id                  PlaceholderCard     </code></pre>
+<h2 id="section-5">5</h2>
+<pre><code>set                  TB                 
+text                Summon a random Imp.
+playRequirements    Object (fromList [(&quot;REQ_MINION_TARGET&quot;,Number 0.0)])
+cost                2                   
+name                Diabolical Powers   
+dbfId               42,156              
+id                  TB_SPT_DPromoHP     
+type                HERO_POWER          </code></pre>
+<h2 id="set">set</h2>
+<pre><code>&quot;BRM&quot;                      221
+&quot;CORE&quot;                     220
+&quot;CREDITS&quot;                   87
+&quot;EXPERT1&quot;                  380
+&quot;GANGS&quot;                    257
+&quot;GILNEAS&quot;                  511
+&quot;GVG&quot;                      180
+&quot;HERO_SKINS&quot;                38
+&quot;HOF&quot;                       29
+&quot;ICECROWN&quot;                 296
+&quot;KARA&quot;                     220
+&quot;LOE&quot;                      254
+&quot;LOOTAPALOOZA&quot;             540
+&quot;MISSIONS&quot;                  36
+&quot;NAXX&quot;                     160
+&quot;OG&quot;                       218
+&quot;TAVERNS_OF_TIME&quot;           49
+&quot;TB&quot;                       623
+&quot;TGT&quot;                      207
+&quot;UNGORO&quot;                   224</code></pre>
+<h2 id="type">type</h2>
+<pre><code>&quot;ENCHANTMENT&quot;              845
+&quot;HERO&quot;                     326
+&quot;HERO_POWER&quot;               370
+&quot;MINION&quot;                 1,815
+&quot;SPELL&quot;                  1,275
+&quot;WEAPON&quot;                   119</code></pre>
+<h2 id="cardclass">cardClass</h2>
+<pre><code>&quot;DEATHKNIGHT&quot;               26
+&quot;DREAM&quot;                      6
+&quot;DRUID&quot;                    290
+&quot;HUNTER&quot;                   205
+&quot;MAGE&quot;                     205
+&quot;NEUTRAL&quot;                2,790
+&quot;PALADIN&quot;                  200
+&quot;PRIEST&quot;                   188
+&quot;ROGUE&quot;                    213
+&quot;SHAMAN&quot;                   188
+&quot;WARLOCK&quot;                  206
+&quot;WARRIOR&quot;                  228</code></pre>
+<h2 id="rarity">rarity</h2>
+<pre><code>&quot;COMMON&quot;                   678
+&quot;EPIC&quot;                     283
+&quot;FREE&quot;                     193
+&quot;LEGENDARY&quot;                336
+&quot;RARE&quot;                     449</code></pre>
+<h2 id="cost">cost</h2>
+<pre><code>Just 0.0                   644
+Just 1.0                   545
+Just 2.0                   639
+Just 3.0                   522
+Just 4.0                   389
+Just 5.0                   331
+Just 6.0                   194
+Just 7.0                   111
+Just 8.0                    78
+Just 9.0                    46
+Just 10.0                   93
+Just 11.0                    5
+Just 12.0                    3
+Just 15.0                    1
+Just 20.0                    1
+Just 50.0                    1</code></pre>
+<h2 id="health">health</h2>
+<pre><code>Just 0.0                     2
+Just 1.0                   275
+Just 2.0                   288
+Just 3.0                   290
+Just 4.0                   264
+Just 5.0                   237
+Just 6.0                   175
+Just 7.0                   100
+Just 8.0                    78
+Just 9.0                    28
+Just 10.0                   43
+Just 11.0                    5
+Just 12.0                   10
+Just 13.0                    1
+Just 14.0                    5
+Just 15.0                   16
+Just 16.0                    1
+Just 17.0                    1
+Just 18.0                    1
+Just 19.0                    1
+Just 20.0                   28
+Just 21.0                    1
+Just 22.0                    1
+Just 23.0                    1
+Just 24.0                    1
+Just 25.0                    7
+Just 26.0                    2
+Just 27.0                    1
+Just 28.0                    1
+Just 29.0                    1
+Just 30.0                  173
+Just 35.0                    3
+Just 40.0                   28
+Just 45.0                   13
+Just 50.0                   18
+Just 55.0                    1
+Just 60.0                   18
+Just 70.0                    6
+Just 75.0                    2
+Just 80.0                    6
+Just 85.0                    1
+Just 95.0                    2
+Just 99.0                    1
+Just 100.0                   5
+Just 200.0                   3
+Just 400.0                   1
+Just 1000.0                  1</code></pre>
+<h2 id="attack">attack</h2>
+<pre><code>Just 0.0                   115
+Just 1.0                   318
+Just 2.0                   415
+Just 3.0                   329
+Just 4.0                   252
+Just 5.0                   226
+Just 6.0                    97
+Just 7.0                    60
+Just 8.0                    45
+Just 9.0                    19
+Just 10.0                   28
+Just 11.0                    3
+Just 12.0                    5
+Just 13.0                    1
+Just 14.0                    1
+Just 15.0                    4
+Just 16.0                    1
+Just 17.0                    1
+Just 18.0                    1
+Just 19.0                    1
+Just 20.0                    4
+Just 21.0                    1
+Just 22.0                    1
+Just 23.0                    1
+Just 24.0                    1
+Just 25.0                    1
+Just 26.0                    1
+Just 27.0                    1
+Just 28.0                    1
+Just 29.0                    1
+Just 30.0                    3</code></pre>
+<h2 id="text">text</h2>
+<pre><code>String &quot;&lt;b&gt;Stealth&lt;/b&gt;\nAt the end of your turn, summon a 1/1 Steward.&quot;         1
+String &quot;Restore #8 Health.&quot;         1
+String &quot;Summon one 5/5 Mithril Golem. &lt;i&gt;(Equip a weapon to upgrade.)&lt;/i&gt;&quot;         1
+String &quot;&lt;b&gt;Battlecry:&lt;/b&gt; Your emotes are now spoken in \&quot;Radio Voice.\&quot;&quot;         1
+String &quot;After you cast a spell, summon a random minion of the same Cost.&quot;         1
+String &quot;Swap George and Karl.&quot;         1
+String &quot;Add 1 random Mage spell to your hand. @&lt;i&gt;(Play 2 Elementals to\160upgrade.)&lt;/i&gt;&quot;         1
+String &quot;&lt;i&gt;This furbolg elder\ncalls arcane energies to her defense.&lt;/i&gt;&quot;         1
+String &quot;&lt;b&gt;Taunt&lt;/b&gt;. &lt;b&gt;Deathrattle:&lt;/b&gt; Deal 2\ndamage to ALL characters.&quot;         1
+String &quot;When this attacks, restore 4 Health to the hero of the player who buffed it.&quot;         1
+String &quot;&lt;b&gt;Battlecry:&lt;/b&gt;  Summon two 1/1 wolves.&quot;         1
+String &quot;At end of your turn, deal 2 damage to the enemies opposite this minion.&quot;         1
+String &quot;&lt;b&gt;Battlecry:&lt;/b&gt; Give a friendly minion &lt;b&gt;Divine Shield&lt;/b&gt;.&quot;         1
+String &quot;Open a permanent portal that summons 3/2 Imps.&quot;         1
+String &quot;This minion&#39;s Attack is equal to its Health.&quot;         1
+String &quot;Whenever this minion takes damage, discard a\160random card.&quot;         1
+String &quot;Deal $4 damage to a minion. If that kills it, add a copy of it to your\160hand.&quot;         1
+String &quot;[x]&lt;b&gt;Battlecry:&lt;/b&gt; The next Murloc\nyou play this turn costs\n\160Health instead of Mana.&quot;         1
+String &quot;After you summon a minion, trigger its &lt;b&gt;Deathrattle&lt;/b&gt; effect.&quot;         1
+String &quot;Whenever a character is healed, gain +2 Attack.&quot;         2</code></pre>
+<h2 id="mechanics">mechanics</h2>
+<pre><code>Array [String &quot;SUMMONED&quot;]         1
+Array [String &quot;CHARGE&quot;,String &quot;TAUNT&quot;]         3
+Array [String &quot;BATTLECRY&quot;,String &quot;CHARGE&quot;]         3
+Array [String &quot;QUEST&quot;]         9
+Array [String &quot;COLLECTIONMANAGER_FILTER_MANA_EVEN&quot;,String &quot;START_OF_GAME&quot;]         1
+Array [String &quot;CHOOSE_ONE&quot;]        30
+Array [String &quot;BATTLECRY&quot;,String &quot;TAUNT&quot;]        32
+Array [String &quot;FREEZE&quot;,String &quot;SPARE_PART&quot;]         1
+Array [String &quot;POISONOUS&quot;,String &quot;STEALTH&quot;]         3
+Array [String &quot;BATTLECRY&quot;,String &quot;ECHO&quot;]         2
+Array [String &quot;AUTOATTACK&quot;,String &quot;TAUNT&quot;]         2
+Array [String &quot;LIFESTEAL&quot;,String &quot;RUSH&quot;]         2
+Array [String &quot;DIVINE_SHIELD&quot;,String &quot;RUSH&quot;]         3
+Array [String &quot;BATTLECRY&quot;,String &quot;SPELLPOWER&quot;]         2
+Array [String &quot;CANT_ATTACK&quot;,String &quot;INSPIRE&quot;]         1
+Array [String &quot;SECRET&quot;,String &quot;ImmuneToSpellpower&quot;]         3
+Array [String &quot;DEATHRATTLE&quot;,String &quot;MULTIPLY_BUFF_VALUE&quot;]         1
+Array [String &quot;DUNGEON_PASSIVE_BUFF&quot;]        28
+Array [String &quot;BATTLECRY&quot;,String &quot;RUSH&quot;]         3
+Array [String &quot;AI_MUST_PLAY&quot;,String &quot;FREEZE&quot;]         2</code></pre>
+<h2 id="playrequirements">playRequirements</h2>
+<pre><code>Object (fromList [(&quot;REQ_MINION_TARGET&quot;,Number 0.0),(&quot;REQ_TARGET_IF_AVAILABLE_AND_DRAGON_IN_HAND&quot;,Number 0.0),(&quot;REQ_LEGENDARY_TARGET&quot;,Number 0.0)])         1
+Object (fromList [(&quot;REQ_HERO_TARGET&quot;,Number 0.0)])         1
+Object (fromList [(&quot;REQ_TARGET_WITH_RACE&quot;,Number 20.0),(&quot;REQ_TARGET_TO_PLAY&quot;,Number 0.0),(&quot;REQ_FRIENDLY_TARGET&quot;,Number 0.0)])         1
+Object (fromList [(&quot;REQ_TARGET_TO_PLAY&quot;,Number 0.0)])        95
+Object (fromList [(&quot;REQ_TARGET_FOR_COMBO&quot;,Number 0.0)])         3
+Object (fromList [(&quot;REQ_MINION_TARGET&quot;,Number 0.0),(&quot;REQ_TARGET_TO_PLAY&quot;,Number 0.0),(&quot;REQ_TARGET_MIN_ATTACK&quot;,Number 5.0)])         1
+Object (fromList [(&quot;REQ_TARGET_WITH_RACE&quot;,Number 20.0),(&quot;REQ_TARGET_TO_PLAY&quot;,Number 0.0)])         1
+Object (fromList [(&quot;REQ_MINIMUM_ENEMY_MINIONS&quot;,Number 2.0)])         5
+Object (fromList [(&quot;REQ_MINION_TARGET&quot;,Number 0.0),(&quot;REQ_TARGET_IF_AVAILABLE&quot;,Number 0.0),(&quot;REQ_TARGET_WITH_DEATHRATTLE&quot;,Number 0.0),(&quot;REQ_FRIENDLY_TARGET&quot;,Number 0.0)])         2
+Object (fromList [(&quot;REQ_TARGET_IF_AVAILABLE&quot;,Number 0.0)])        16
+Object (fromList [(&quot;REQ_DRAG_TO_PLAY&quot;,Number 0.0)])         1
+Object (fromList [(&quot;REQ_MINIMUM_TOTAL_MINIONS&quot;,Number 2.0)])         1
+Object (fromList [(&quot;REQ_MINION_TARGET&quot;,Number 0.0),(&quot;REQ_TARGET_TO_PLAY&quot;,Number 0.0)])       152
+Object (fromList [(&quot;REQ_HERO_TARGET&quot;,Number 0.0),(&quot;REQ_TARGET_TO_PLAY&quot;,Number 0.0),(&quot;REQ_ENEMY_TARGET&quot;,Number 0.0)])         1
+Object (fromList [(&quot;REQ_TARGET_WITH_DEATHRATTLE&quot;,Number 0.0),(&quot;REQ_FRIENDLY_TARGET&quot;,Number 0.0)])         2
+Object (fromList [(&quot;REQ_MINION_TARGET&quot;,Number 0.0),(&quot;REQ_TARGET_FOR_COMBO&quot;,Number 0.0)])         2
+Object (fromList [(&quot;REQ_WEAPON_EQUIPPED&quot;,Number 0.0)])         5
+Object (fromList [(&quot;REQ_MINION_TARGET&quot;,Number 0.0)])        25
+Object (fromList [(&quot;REQ_TARGET_TO_PLAY&quot;,Number 0.0),(&quot;REQ_FRIENDLY_TARGET&quot;,Number 0.0)])         3
+Object (fromList [(&quot;REQ_TARGET_WITH_RACE&quot;,Number 15.0),(&quot;REQ_TARGET_TO_PLAY&quot;,Number 0.0)])         1</code></pre>
+<h2 id="collectible">collectible</h2>
+<pre><code>Bool True                1,615</code></pre>
+<h2 id="race">race</h2>
+<pre><code>String &quot;BEAST&quot;             222
+String &quot;ALL&quot;                 2
+String &quot;TOTEM&quot;               9
+String &quot;DEMON&quot;              66
+String &quot;ELEMENTAL&quot;          80
+String &quot;PIRATE&quot;             26
+String &quot;DRAGON&quot;             74
+String &quot;MURLOC&quot;             39
+String &quot;ORC&quot;                 1
+String &quot;MECHANICAL&quot;         78</code></pre>
+<h2 id="elite">elite</h2>
+<pre><code>Bool True                  465</code></pre>
+<h2 id="referencedtags">referencedTags</h2>
+<pre><code>Array [String &quot;DIVINE_SHIELD&quot;]        15
+Array [String &quot;LIFESTEAL&quot;]         8
+Array [String &quot;POISONOUS&quot;,String &quot;TAUNT&quot;]         2
+Array [String &quot;DEATHRATTLE&quot;,String &quot;LIFESTEAL&quot;,String &quot;RUSH&quot;]         1
+Array [String &quot;SPELLPOWER&quot;]        10
+Array [String &quot;ECHO&quot;]         2
+Array [String &quot;CHARGE&quot;]        13
+Array [String &quot;AUTOATTACK&quot;]         9
+Array [String &quot;CANT_ATTACK&quot;]         1
+Array [String &quot;DIVINE_SHIELD&quot;,String &quot;TAUNT&quot;,String &quot;WINDFURY&quot;]         1
+Array [String &quot;CHOOSE_ONE&quot;,String &quot;JADE_GOLEM&quot;]         1
+Array [String &quot;CHARGE&quot;,String &quot;TAUNT&quot;]         5
+Array [String &quot;ADAPT&quot;]        16
+Array [String &quot;DIVINE_SHIELD&quot;,String &quot;LIFESTEAL&quot;,String &quot;TAUNT&quot;,String &quot;WINDFURY&quot;]         1
+Array [String &quot;SPARE_PART&quot;]         5
+Array [String &quot;DEATHRATTLE&quot;,String &quot;DISCOVER&quot;]         2
+Array [String &quot;SECRET&quot;,String &quot;STEALTH&quot;]         1
+Array [String &quot;JADE_GOLEM&quot;,String &quot;TAUNT&quot;]         1
+Array [String &quot;DEATHRATTLE&quot;,String &quot;SILENCE&quot;]         1
+Array [String &quot;SECRET&quot;]        20</code></pre>
+<h2 id="entourage">entourage</h2>
+<pre><code>Array [String &quot;TB_LethalSetup001a&quot;,String &quot;TB_LethalSetup001b&quot;]         1
+Array [String &quot;EX1_543&quot;,String &quot;UNG_919&quot;,String &quot;EX1_116&quot;,String &quot;FP1_010&quot;,String &quot;GVG_110&quot;,String &quot;FP1_013&quot;,String &quot;ICC_314&quot;,String &quot;OG_042&quot;,String &quot;KAR_114&quot;,String &quot;GVG_114&quot;]         1
+Array [String &quot;CS2_084&quot;,String &quot;DS1_183&quot;,String &quot;EX1_537&quot;,String &quot;EX1_609&quot;,String &quot;DS1_185&quot;,String &quot;EX1_617&quot;,String &quot;GVG_073&quot;,String &quot;BRM_013&quot;,String &quot;AT_056&quot;,String &quot;UNG_910&quot;,String &quot;ICC_049&quot;,String &quot;LOOT_077&quot;]         1
+Array [String &quot;CS2_097&quot;,String &quot;GVG_059&quot;,String &quot;LOOT_286&quot;,String &quot;GVG_061&quot;,String &quot;OG_222&quot;,String &quot;UNG_950&quot;,String &quot;LOOT_500&quot;,String &quot;LOOT_118&quot;,String &quot;EX1_366&quot;,String &quot;ICC_096&quot;]         1
+Array [String &quot;GILA_513&quot;,String &quot;GILA_511&quot;,String &quot;GILA_506&quot;]         1
+Array [String &quot;CS2_103&quot;,String &quot;NEW1_011&quot;,String &quot;EX1_414&quot;,String &quot;CS2_146&quot;,String &quot;AT_087&quot;,String &quot;EX1_116&quot;,String &quot;EX1_067&quot;,String &quot;AT_070&quot;,String &quot;UNG_099&quot;,String &quot;AT_125&quot;]         1
+Array [String &quot;FB_ELO002a_copy&quot;,String &quot;FB_ELO002b_copy&quot;,String &quot;FB_ELO002c_copy&quot;]         1
+Array [String &quot;FP1_001&quot;,String &quot;AT_030&quot;,String &quot;LOE_019&quot;,String &quot;EX1_012&quot;,String &quot;EX1_059&quot;,String &quot;FP1_004&quot;,String &quot;EX1_616&quot;,String &quot;FP1_024&quot;,String &quot;tt_004&quot;]         1
+Array [String &quot;AT_003&quot;,String &quot;AT_090&quot;,String &quot;AT_006&quot;,String &quot;AT_099&quot;,String &quot;AT_127&quot;,String &quot;ICC_833&quot;,String &quot;AT_119&quot;,String &quot;CFM_807&quot;,String &quot;AT_008&quot;]         1
+Array [String &quot;CFM_313&quot;,String &quot;LOE_018&quot;,String &quot;AT_053&quot;,String &quot;BRM_011&quot;,String &quot;OG_026&quot;,String &quot;ICC_081&quot;,String &quot;EX1_248&quot;,String &quot;EX1_258&quot;,String &quot;OG_024&quot;,String &quot;EX1_250&quot;,String &quot;LOOT_064&quot;,String &quot;ICC_090&quot;,String &quot;AT_052&quot;,String &quot;LOE_018&quot;,String &quot;BRM_011&quot;,String &quot;OG_026&quot;,String &quot;EX1_567&quot;]         1
+Array [String &quot;OG_314&quot;,String &quot;CS2_108&quot;,String &quot;CS2_105&quot;,String &quot;EX1_391&quot;,String &quot;AT_064&quot;,String &quot;EX1_408&quot;,String &quot;KAR_028&quot;,String &quot;GVG_052&quot;,String &quot;CS2_114&quot;]         1
+Array [String &quot;EX1_298&quot;,String &quot;GVG_114&quot;,String &quot;ICC_314&quot;,String &quot;FP1_013&quot;,String &quot;UNG_933&quot;,String &quot;EX1_572&quot;,String &quot;OG_042&quot;,String &quot;LOOT_380&quot;,String &quot;AT_072&quot;,String &quot;EX1_016&quot;,String &quot;LOE_079&quot;,String &quot;AT_127&quot;,String &quot;GVG_056&quot;,String &quot;LOOT_357&quot;]         1
+Array [String &quot;CS2_074&quot;,String &quot;ICC_233&quot;,String &quot;LOOT_542&quot;,String &quot;GVG_023&quot;,String &quot;ICC_221&quot;,String &quot;UNG_823&quot;,String &quot;ICC_850&quot;,String &quot;CS2_233&quot;,String &quot;ICC_240&quot;,String &quot;GVG_022&quot;,String &quot;ICC_097&quot;,String &quot;LOOT_033&quot;,String &quot;LOOT_389&quot;,String &quot;ICC_096&quot;]         1
+Array [String &quot;CFM_062&quot;,String &quot;CFM_815&quot;,String &quot;UNG_015&quot;,String &quot;CFM_062&quot;,String &quot;EX1_383&quot;,String &quot;GVG_085&quot;,String &quot;UNG_808&quot;,String &quot;ICC_314&quot;,String &quot;ICC_912&quot;,String &quot;OG_145&quot;,String &quot;FP1_012&quot;,String &quot;LOOT_383&quot;,String &quot;EX1_032&quot;,String &quot;KAR_061&quot;]         1
+Array [String &quot;OG_334&quot;,String &quot;OG_096&quot;,String &quot;OG_281&quot;,String &quot;OG_162&quot;,String &quot;OG_286&quot;,String &quot;OG_283&quot;,String &quot;OG_321&quot;,String &quot;OG_131&quot;,String &quot;OG_280&quot;,String &quot;OG_255&quot;]         1
+Array [String &quot;EX1_162&quot;,String &quot;EX1_531&quot;,String &quot;tt_004&quot;,String &quot;LOOT_136&quot;,String &quot;CS2_237&quot;,String &quot;AT_090&quot;,String &quot;UNG_916&quot;,String &quot;OG_045&quot;,String &quot;OG_313&quot;,String &quot;EX1_093&quot;,String &quot;CS2_222&quot;]         1
+Array [String &quot;DS1_188&quot;,String &quot;NEW1_018&quot;,String &quot;EX1_536&quot;,String &quot;GVG_043&quot;,String &quot;GVG_119&quot;,String &quot;CFM_325&quot;,String &quot;CFM_337&quot;,String &quot;LOOT_118&quot;,String &quot;LOOT_222&quot;,String &quot;LOOT_389&quot;,String &quot;ICC_096&quot;]         1
+Array [String &quot;ICC_836&quot;,String &quot;EX1_277&quot;,String &quot;GVG_001&quot;,String &quot;KAR_076&quot;,String &quot;CFM_623&quot;,String &quot;AT_009&quot;,String &quot;GVG_003&quot;,String &quot;LOOT_106&quot;,String &quot;GIL_147&quot;,String &quot;GIL_664&quot;]         1
+Array [String &quot;ICC_808&quot;,String &quot;GVG_097&quot;,String &quot;UNG_072&quot;,String &quot;ICC_807&quot;,String &quot;LOOT_131&quot;,String &quot;UNG_801&quot;,String &quot;UNG_848&quot;,String &quot;LOOT_314&quot;,String &quot;ICC_835&quot;,String &quot;LOOT_137&quot;,String &quot;UNG_108&quot;,String &quot;FP1_012&quot;]         1
+Array [String &quot;CFM_639&quot;,String &quot;CFM_753&quot;,String &quot;CFM_305&quot;,String &quot;GVG_063&quot;,String &quot;CFM_650&quot;,String &quot;CFM_685&quot;,String &quot;CFM_853&quot;,String &quot;BRM_028&quot;]         1</code></pre>
+<h2 id="targetingarrowtext">targetingArrowText</h2>
+<pre><code>String &quot;Trigger a Deathrattle.&quot;         2
+String &quot;&lt;b&gt;Silence&lt;/b&gt; a minion.&quot;         2
+String &quot;Add a Golden copy to your hand.&quot;         1
+String &quot;Restore 3 Health.&quot;         2
+String &quot;Give +1 Attack.&quot;         1
+String &quot;Restore a minion to full Health.&quot;         1
+String &quot;Silence a minion with Deathrattle.&quot;         1
+String &quot;Deal 1 damage.  Combo: 2 instead.&quot;         1
+String &quot;Deal 3 damage.&quot;         3
+String &quot;Change Attack to 1.&quot;         1
+String &quot;Restore 5 Health.&quot;         1
+String &quot;Steal a minion that has 2 or less Attack.&quot;         1
+String &quot;Curse a minion.&quot;         1
+String &quot;Destroy a minion.&quot;         3
+String &quot;Return a minion to hand.&quot;         1
+String &quot;Freeze an enemy.&quot;         2
+String &quot;Restore 2 Health.&quot;         2
+String &quot;Deal 4 damage.&quot;         2
+String &quot;Grant &lt;b&gt;Taunt&lt;/b&gt;.&quot;         1
+String &quot;Return to your hand.&quot;         1</code></pre>
+<h2 id="durability">durability</h2>
+<pre><code>Number 2.0                  51
+Number 4.0                  11
+Number 3.0                  34
+Number 5.0                   6
+Number 0.0                   1
+Number 1.0                   6
+Number 6.0                   6
+Number 8.0                   5</code></pre>
+<h2 id="faction">faction</h2>
+<pre><code>String &quot;ALLIANCE&quot;           56
+String &quot;HORDE&quot;              24</code></pre>
+<h2 id="collectiontext">collectionText</h2>
+<pre><code>String &quot;&lt;b&gt;Divine Shield&lt;/b&gt;, &lt;b&gt;Poisonous&lt;/b&gt;&quot;         1
+String &quot;&lt;b&gt;Hero Power&lt;/b&gt;\nDeal $3 damage.&quot;         2
+String &quot;&lt;b&gt;Secret Deathrattle:&lt;/b&gt; Deal 3 damage to all minions; or Give them +2/+2.&quot;         1
+String &quot;Add 1 random Mage spell to your hand. &lt;i&gt;(Play 2 Elementals to\160upgrade.)&lt;/i&gt;&quot;         1
+String &quot;&lt;b&gt;Echo&lt;/b&gt;, &lt;b&gt;Rush&lt;/b&gt;&quot;         1
+String &quot;Summon a 2/2 Spirit with &lt;b&gt;Taunt&lt;/b&gt;. &lt;i&gt;(Restore 3 Health to upgrade.)&lt;/i&gt;&quot;         1
+String &quot;&lt;b&gt;Lifesteal&lt;/b&gt;, &lt;b&gt;Rush&lt;/b&gt;&quot;         1
+String &quot;Destroy 1 random enemy minion.\n&lt;i&gt;(Play 3 &lt;b&gt;Deathrattle&lt;/b&gt; cards to upgrade.)&lt;/i&gt;&quot;         1
+String &quot;&lt;b&gt;Taunt&lt;/b&gt;, &lt;b&gt;Poisonous&lt;/b&gt;&quot;         1
+String &quot; &lt;b&gt;Battlecry and Deathrattle:&lt;/b&gt; Summon a &lt;b&gt;Jade Golem&lt;/b&gt;.&quot;         1
+String &quot;Resurrect 2 different friendly minions. &lt;i&gt;(Cast 4 spells to upgrade.)&lt;/i&gt;&quot;         1
+String &quot;Deal $4 damage. Summon a &lt;b&gt;Jade Golem&lt;/b&gt;.&quot;         1
+String &quot;&lt;b&gt;Poisonous&lt;/b&gt;, &lt;b&gt;Rush&lt;/b&gt;&quot;         1
+String &quot;Deal $2 damage to a minion. &lt;i&gt;(Gain 3 Armor to upgrade.)&lt;/i&gt;&quot;         1
+String &quot;Summon a &lt;b&gt;Jade Golem&lt;/b&gt;. Gain an empty Mana Crystal.&quot;         1
+String &quot;&lt;b&gt;Stealth&lt;/b&gt;\n&lt;b&gt;Deathrattle:&lt;/b&gt; Summon a &lt;b&gt;Jade Golem&lt;/b&gt;.&quot;         1
+String &quot;&lt;b&gt;Choose One -&lt;/b&gt; Summon a &lt;b&gt;Jade Golem&lt;/b&gt;; or Shuffle 3 copies of this card into your deck.&quot;         1
+String &quot;Summon a &lt;b&gt;Jade Golem&lt;/b&gt;.&quot;         1
+String &quot;Polymorph a random enemy minion.&quot;         1
+String &quot;&lt;b&gt;Battlecry:&lt;/b&gt; Summon a &lt;b&gt;Jade\160Golem&lt;/b&gt;.&quot;         1</code></pre>
+<h2 id="overload">overload</h2>
+<pre><code>Number 1.0                  12
+Number 10.0                  1
+Number 5.0                   1
+Number 3.0                   4
+Number 2.0                  11</code></pre>
+<h1 id="workflow">workflow</h1>
+<pre><code>stack build --exec &quot;$(stack path --local-install-root)/bin/hheartstone&quot; --exec &quot;$(stack path --local-bin)/pandoc -f markdown -i other/readme_.md -t markdown -o readme.md --filter pandoc-include --mathjax&quot;</code></pre>
+<hr />
+<div class="footer">
+<p>Made with love 'n' care; and <a href="https://haskell-lang.org/">haskell</a>, <a href="https://pandoc.org">pandoc</a>, and <a href="https://docs.haskellstack.org/en/stable/README/">stack</a>.</p>
+</div>

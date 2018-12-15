@@ -43,16 +43,16 @@ Simulator in python: [fireplace](https://github.com/jleclanche/fireplace)
 - [readert design](https://www.fpcomplete.com/blog/2017/06/readert-design-pattern)
 
 \begin{code}
-import Protolude
+import Control.Monad.Primitive
 import Data.Aeson
-import qualified Data.HashMap.Strict as Map
+import Data.List ((!!))
 import Data.Scientific
 import Hearth
-import Hearth.Json
-import Hearth.Format
+import Protolude
 import System.Random.MWC
-import Control.Monad.Primitive
-import Data.List ((!!))
+import qualified Data.HashMap.Strict as Map
+import qualified Data.ByteString as B
+import Xeno.DOM
 \end{code}
 
 JSON of cards
@@ -64,11 +64,41 @@ JSON of cards
 
 - [x] create a random deck, based on chosen hero
 - [ ] count deck, hand, board
-- [ ] start game
 - [ ] list possible plays
 - [ ] make a play
 
 \begin{code}
+
+-- | doctest
+-- >>> :set -XTypeApplications
+-- >>> :set -XDataKinds
+-- >>> import Hearth
+-- >>> import Control.Lens
+-- >>> import Data.Generics.Product (field)
+-- >>> env' <- setEnv ["CORE", "EXPERT1"]
+-- >>> let (Right env) = env'
+-- >>> let (Right g) <- runReaderT testInitialGameState env
+-- >>> :t g
+-- g :: Game
+--
+-- >>> (g^.field @"turn", g^.field @"round")
+-- (First,1)
+--
+testInitialGameState :: (MonadReader Env m, MonadIO m) => m (Either Text Game)
+testInitialGameState = do
+  env <- ask
+  mageCards <- allClassColls Mage
+  druidCards <- allClassColls Druid
+  cc1 <- liftIO $ shuffle (gen env) 30 mageCards
+  cc2 <- liftIO $ shuffle (gen env) 30 druidCards
+  initGame (Mage, cc1) (Druid, cc2)
+
+g0 :: IO (CardMap, Game)
+g0 = do
+  env' <- setEnv ["CORE", "EXPERT1"]
+  let (Right env) = env'
+  (Right g) <- runReaderT testInitialGameState env
+  pure (allCards env, g)
 
 allClassColls :: (MonadReader Env m) => CardClass -> m [Card]
 allClassColls t = do
@@ -76,10 +106,26 @@ allClassColls t = do
   let xs = filter (\x ->
                      (cardClass x == t) ||
                      (cardClass x == Neutral))
-           (collectibles env)
-  pure $ xs <> xs
+           (Map.elems $ cardMap $ collectibles env)
+  let xs' = freshCard (collectibles env) <$> xs 
+  pure $ xs' <> xs'
 
--- put the Gen in a State
+pad :: CardMap -> Game -> IO ()
+pad cs g = writeFile "other/scratch.md" $ h2 "scratch" <> renderGame cs g
+
+t1 :: CardMap -> Game -> IO ()
+t1 cs g = pad cs $ foldl' (flip play) g
+  [ (ToBoard (Hand 2) 0)
+  , EndButton
+  , Cast (Hand 4)
+  , ToBoard (Hand 1) 0
+  , EndButton
+--  , EndButton
+--  , ToBoard (Hand 3) 1
+--  , EndButton
+--  , EndButton
+  ]
+
 shuffle :: Gen (PrimState IO) -> Int -> [a] -> IO [a]
 shuffle mwc n xs = go n xs []
   where
@@ -91,21 +137,12 @@ shuffle mwc n xs = go n xs []
           let (fir, x:sec) = splitAt rv xs'
           go (n' - 1) (fir <> sec) (x:r)
 
-testInitialGameState :: (MonadReader Env m, MonadIO m) => m (Either Text GameState)
-testInitialGameState = do
-  env <- ask
-  mageCards <- allClassColls Mage
-  druidCards <- allClassColls Druid
-  cc1 <- liftIO $ shuffle (gen env) 30 mageCards
-  cc2 <- liftIO $ shuffle (gen env) 30 druidCards
-  initGame (Mage, cc1) (Druid, cc2)
-
-shuffleTest :: (MonadReader Env m, MonadIO m) => m [Id]
+shuffleTest :: (MonadReader Env m, MonadIO m) => m [Text]
 shuffleTest = do
   env <- ask
-  let xs = mage $ collectibles env
+  let xs = mage $ Map.elems $ cardMap $ collectibles env
   i <- liftIO $ shuffle (gen env) 3 (take (length xs) [0..])
-  return $ ((id <$> xs) !!) <$> i
+  return $ ((unid <$> sid <$> xs) !!) <$> i
   where
     mage = filter (\x -> cardClass x == Mage)
 
@@ -159,6 +196,8 @@ jsonStats xs =
 main :: IO ()
 main = do
   env' <- setEnv ["CORE", "EXPERT1"]
+  (cs, g) <- g0
+  t1 cs g
   case env' of
     Left x -> print ("environment problem: " <> x)
     Right env -> do
@@ -173,6 +212,6 @@ main = do
         Right game' ->
           writeFile "other/testGameState.md" $
           h2 "test game render" <>
-          renderGame game'
+          renderGame (allCards env) game'
 
 \end{code}

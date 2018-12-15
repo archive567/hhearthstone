@@ -36,14 +36,22 @@ executable hheartstone
   build-depends:
       base >=4.7 && <5
     , hheartstone
+    , numhask-prelude
     , mwc-random
     , protolude
     , aeson
+    , generic-lens
+    , lens
     , text
     , unordered-containers
     , scientific
     , primitive
     , mtl
+    , xeno
+    , xmlgen
+    , bytestring
+    , safe-exceptions
+    , containers
   default-language:
     Haskell2010
 library
@@ -62,13 +70,21 @@ library
     -Wredundant-constraints
   exposed-modules:
     Hearth
+    Hearth.Card
+    Hearth.Player
+    Hearth.Game
     Hearth.Json
     Hearth.Format
+    Hearth.Xml
+    Hearth.Enum
   build-depends:
       base >=4.7 && <5
     , aeson
+    , numhask-prelude
     , bytestring
     , formatting
+    , generic-lens
+    , lens
     , mtl
     , mwc-random
     , primitive
@@ -77,5 +93,10 @@ library
     , text
     , unordered-containers
     , vector
+    , xeno
+    , xmlgen
+    , bytestring
+    , safe-exceptions
+    , containers
   default-language:
     Haskell2010

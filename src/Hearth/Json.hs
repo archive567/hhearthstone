@@ -1,26 +1,29 @@
-\begin{code}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
 module Hearth.Json where
 
+import Control.Lens hiding (Magma)
 import Data.Aeson
 import Data.Scientific
+import Hearth.Card
+import Hearth.Enum
 import Hearth.Format
-import Protolude
+import Hearth.Game
+import Protolude hiding (from, to)
+import System.Random.MWC
 import qualified Data.ByteString.Lazy as B
 import qualified Data.HashMap.Strict as Map
-import qualified Data.Vector as V
-import Hearth
 import qualified Data.Text as Text
-import System.Random.MWC
+import qualified Data.Vector as V
 
 filt :: [(Text, Value -> Bool)] -> [Object] -> [Object]
 filt [] xs = xs
@@ -122,15 +125,15 @@ attrNF k xs = h2 k <>
       countValues k xs))
 
 fCard :: Maybe Text -> Map.HashMap Text Value -> Text
-fCard h card =
+fCard h c =
   maybe mempty h2 h <>
-  code ((\(k,v) -> fKR k (fV 3 8 v)) <$> Map.toList card)
+  code ((\(k,v) -> fKR k (fV 3 8 v)) <$> Map.toList c)
 
 setEnv :: [Text] -> IO (Either Text Env)
-setEnv sets = do
+setEnv cardsets = do
   c <- create
   jsons' <- getJsonCards
-  let orSet = foldl' (\x a y -> x y || (y==String a)) (const False) sets
+  let orSet = foldl' (\x a y -> x y || (y==String a)) (const False) cardsets
   let js = filt [("set", orSet)] jsons'
   let colls = filt [("collectible",(==Bool True))] jsons'
   let hps = json2Cards $ filt [ ("type", (== String "HERO_POWER"))] js
@@ -142,41 +145,54 @@ setEnv sets = do
   pure $
     Env <$>
     pure c <*>
-    json2Cards js <*>
-    json2Cards colls <*>
+    json2CardMap js <*>
+    json2CardMap colls <*>
     hs' <*>
     hps' <*>
-    join (json2Card <$> coin)
+    (join $ json2Card <$> coin)
 
 -- take a cardClass and make a deck from basic and standard
-json2Cards :: [Object] -> Either Text [Card]
+json2CardMap :: [Object] -> Either Text CardMap
+json2CardMap os = CardMap <$> Map.fromList <$> fmap (\x -> (sid x,x)) <$>
+  json2Cards os
+
+json2Cards :: [Object] -> Either Text [SCard]
 json2Cards os
   | ls == [] = Right rs
   | otherwise = Left (Text.intercalate "/n" ls)
   where
     (ls, rs) = partitionEithers (json2Card <$> os)
 
-json2Card :: Object -> Either Text Card
+json2Card :: Object -> Either Text SCard
 json2Card o =
-  Card <$> pure c <*> pure a <*> pure h <*> i <*> n <*>
-  pure ms <*> ct <*> pure [] <*> cc <*> pure r <*> pure sp <*>
-  pure ov <*> pure dur <*>
-  pure target <*> pure ent <*> pure txt
+  SCard <$> pure c <*> pure a <*> pure h <*> i <*> n <*> ct <*> cc <*> pure r <*> pure sp <*> pure ov <*> pure dur <*> pure target <*> pure ent <*> pure txt
   where
     c = either (const 0) identity (oint o "cost")
     a = either (const 0) identity (oint o "attack")
     h = either (const 0) identity (oint o "health")
-    i = otext o "id"
+    i = Id <$> otext o "id"
     n = otext o "name"
-    ms = text2mech <$> omech o
-    ct = join $ text2CardType <$> otext o "type"
-    cc = either Left text2CardClass (otext o "cardClass")
+    -- ms = text2mech <$> omech o
+    ct = view (from ctypeText) <$> (otext o "type")
+    cc = view (from cclassText) <$> (otext o "cardClass")
     r = mtext o "race"
     sp = mint o "spellDamage"
     ov = mint o "overload"
-    dur = mint o "durability"
+    dur = either (const 0) identity (oint o "durability")
     target = mtext o "targetingArrowText"
-    ent = otexts o "entourage"
+    ent = fmap Id <$> otexts o "entourage"
     txt = either (const "") identity (otext  o "text")
 
-\end{code}
+-- exploring text elements of json cardset
+findText ::
+  (Eq k, Hashable k) =>
+  k -> (Text -> Bool) -> [Map.HashMap k Value] -> [Map.HashMap k Value]
+findText k pr =
+  filter
+  ( (== Just True) .
+    fmap stringp .
+    Map.lookup k)
+  where
+    stringp (String x) = pr x
+    stringp _ = False
+

@@ -1,6 +1,32 @@
 [hheartstone](https://github.com/tonyday567/hheartstone)
 ========================================================
 
+test game state
+---------------
+
+test game render
+----------------
+
+turn: First round: 1 eval: -20.600000000000023 <br>
+<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/EX1_584.png' width='15%'>
+<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/GIL_207.png' width='15%'>
+<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/OG_295.png' width='15%'>
+<br>
+
+<br>
+
+<br>
+<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/LOE_050.png' width='15%'>
+<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/FP1_027.png' width='15%'>
+<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/CS2_181.png' width='15%'>
+<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/EX1_573.png' width='15%'>
+<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/GAME_005.png' width='15%'>
+<br> first player: Mage mana: 1/1 deck left: 27 <br> second player:
+Druid mana: 0/1 deck left: 26
+
+notes
+-----
+
 Modelling Heartstone
 
 Gabrielle on [game
@@ -17,257 +43,6 @@ Get decks from hearthpwm:
 Hearthstone AI
 [discussion](https://www.reddit.com/r/hearthstone/comments/7l1ob0/i_wrote_a_masters_thesis_on_effective_hearthstone/)
 
-game state
-----------
-
-test game render
-----------------
-
-turn: First player 1: Jaina Proudmoore mana: 10 deck left: 27 hand:
-<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/EX1_584.png'>
-<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/GIL_207.png'>
-<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/OG_295.png'>
-board: player 2: Malfurion Stormrage mana: 10 deck left: 26 hand:
-<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/LOE_050.png'>
-<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/FP1_027.png'>
-<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/CS2_181.png'>
-<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/EX1_573.png'>
-<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/GAME_005.png'>
-deck:
-
-api
----
-
-``` {.sourceCode .literate .haskell}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE DisambiguateRecordFields #-}
-
-module Hearth where
-
-import Protolude hiding (First)
-import System.Random.MWC
-import Control.Monad.Primitive
-import qualified Data.HashMap.Strict as Map
-import GHC.Show
-
-data Env = Env
-  { gen :: Gen (PrimState IO)
-  , allCards :: [Card]
-  , collectibles :: [Card]
-  , heros :: Map.HashMap CardClass Card
-  , heroPowers :: Map.HashMap CardClass Card
-  , theCoin :: Card
-  }
-
-type Id = Text
-
-data Card = Card
-  { cost :: Int
-  , attack :: Int
-  , health :: Int
-  , id :: Id
-  , name :: Text
-  , mechanics :: [Mechanic]
-  , cardType :: CardType
-  , cardState :: [CardState]
-  , cardClass :: CardClass
-  , race :: Maybe Text
-  , spellDamage :: Maybe Int
-  , overload :: Maybe Int
-  , durability :: Maybe Int
-  , targetText :: Maybe Text
-  , entourage :: Maybe [Id]
-  , cardText :: Text
-  } deriving (Show)
-
-instance Eq Card where
-  (==) a b = id a == id b
-
-data TAction = TAction { tdesc :: Text, taction :: Target -> [Event]}
-
-instance Show TAction where
-  show (TAction t _) = GHC.Show.show t
-
-data PAction = PAction { pdesc :: Text, paction :: Position -> TAction}
-
-instance Show PAction where
-  show (PAction t _) = GHC.Show.show t
-
-data Mechanic =
-  Charge |
-  Taunt |
-  Battlecry Text [TAction] |
-  Deathrattle Text [TAction] |
-  Power Text [PAction] |
-  SpellPower [PAction] |
-  Rush |
-  DivineShield |
-  Poisonous |
-  Combo Text [PAction] |
-  WindFury |
-  Stealth |
-  Secret Text [PAction] |
-  CantTargetSpells |
-  CantTargetHeroPower |
-  Immune |
-  Silence Text [TAction] |
-  Silenced |
-  UnknownMechanic Text
-  deriving (Show)
-
-data Target = Target PlayerTag Position deriving (Eq, Show)
-
-data CardType = Spell | Minion | Weapon | Hero | HeroPower | Enchantment
-  deriving (Eq, Show)
-
-data CardState = Rushed Int | Green Int | Frozen | Dormant Int |
-  Damaged Int | Buffed Int Int deriving (Eq, Show)
-
-data CardClass =
-  Druid |
-  Hunter |
-  Mage |
-  Neutral |
-  Paladin |
-  Priest |
-  Rogue |
-  Shaman |
-  Warlock |
-  Warrior |
-  Dream
-  deriving (Eq, Show, Generic)
-
-instance Hashable CardClass
-
-allHeroClasses :: [CardClass]
-allHeroClasses =
-  [Druid,
-   Hunter,
-   Mage,
-   Paladin,
-   Priest,
-   Rogue,
-   Shaman,
-   Warlock,
-   Warrior]  
-
-data GameState = GameState
-  { firstPlayer :: Player
-  , secondPlayer :: Player
-  , playerTurn :: PlayerTag
-  , rounds :: [[Action]]
-  } deriving (Show)
-
-initGame :: (MonadReader Env m) => (CardClass, [Card]) -> (CardClass, [Card]) ->
-  m (Either Text GameState)
-initGame (cc1, c1) (cc2, c2) = do
-  p1 <- playerInit First cc1 c1
-  p2 <- playerInit Second cc2 c2
-  pure $ GameState <$>
-    p1 <*>
-    p2 <*>
-    pure First <*>
-    pure []
-
-data Player = Player
-  { deck :: [Card]
-  , hand :: [Card]
-  , board :: [Card]
-  , hero :: Card
-  , heroPower :: Card
-  , weapon :: Maybe Card
-  , mana :: Int
-  , overloads :: Int
-  } deriving (Show)
-
-playerInit :: (MonadReader Env m) => PlayerTag -> CardClass -> [Card] ->
-  m (Either Text Player)
-playerInit pt cc cs = do
-  env <- ask
-  let h = maybe (Left "no more heros anymore") Right
-        (Map.lookup cc (heros env))
-  let hp = maybe (Left "no more heros anymore") Right
-        (Map.lookup cc (heroPowers env))
-  let (n,c) = if pt==Hearth.First then (3,[]) else (4, [theCoin env])
-  pure $ Player <$> pure (drop n cs) <*> pure (take n cs <> c) <*> pure []
-    <*> h <*> hp <*> pure Nothing <*> pure 10 <*> pure 0
-
-data PlayerTag = First | Second deriving (Eq, Show)
-
-data Action =
-  StartTurn |
-  Play Position |
-  EndTurn
-  deriving (Eq, Show)
-
-data Position =
-  Deck Int | Hand Int | Board Int | WeaponPos | HeroPos deriving (Eq, Show)
-
-data Event =
-  Destroy PlayerTag Position |
-  Create PlayerTag Position |
-  Mod PlayerTag Position (Card -> Card)
-
-type Power = PlayerTag -> Position -> Event
-
-
-text2mech :: Text -> Mechanic
-text2mech t = case t of
-  "BATTLECRY" -> Battlecry "" []
-  "TAUNT" -> Taunt
-  "CHARGE" -> Charge
-  "DEATHRATTLE" -> Deathrattle "" []
-  "RUSH" -> Rush
-  "DIVINE_SHIELD" -> DivineShield
-  "POISoNOUS" -> Poisonous
-  "COMBO" -> Combo "" []
-  "WINDFURY" -> WindFury
-  "STEALTH" -> Stealth
-  "SECRET" -> Secret "" []
-  "CANT_BE_TARGETED_BY_SPELLS" -> CantTargetSpells
-  "CANT_BE_TARGETED_BY_HERO_POWERS" -> CantTargetHeroPower
-  x -> UnknownMechanic x
-
-text2CardType :: Text -> Either Text CardType
-text2CardType t = case t of
-  "HERO" -> Right Hero
-  "MINION" -> Right Minion
-  "SPELL" -> Right Spell
-  "WEAPON" -> Right Weapon
-  "HERO_POWER" -> Right HeroPower
-  "ENCHANTMENT" -> Right Enchantment
-  x -> Left $ "Unknown cardType: " <> x
-
-text2CardClass :: Text -> Either Text CardClass
-text2CardClass "DRUID" = Right Druid
-text2CardClass "HUNTER" = Right Hunter
-text2CardClass "MAGE" = Right Mage
-text2CardClass "NEUTRAL" = Right Neutral
-text2CardClass "PALADIN" = Right Paladin
-text2CardClass "PRIEST" = Right Priest
-text2CardClass "ROGUE" = Right Rogue
-text2CardClass "SHAMAN" = Right Shaman
-text2CardClass "WARLOCK" = Right Warlock
-text2CardClass "WARRIOR" = Right Warrior
-text2CardClass "DREAM" = Right Dream
-text2CardClass x = Left $ "Unknown CardClass: " <> x
-
-cardClass2Text :: CardClass -> Text
-cardClass2Text Druid = "DRUID"
-cardClass2Text Hunter = "HUNTER"
-cardClass2Text Mage = "MAGE"
-cardClass2Text Neutral = "NEUTRAL"
-cardClass2Text Paladin = "PALADIN"
-cardClass2Text Priest = "PRIEST"
-cardClass2Text Rogue = "ROGUE"
-cardClass2Text Shaman = "SHAMAN"
-cardClass2Text Warlock = "WARLOCK"
-cardClass2Text Warrior = "WARRIOR"
-cardClass2Text Dream = "DREAM"
-```
-
 JSON of cards
 -------------
 
@@ -275,8 +50,11 @@ JSON of cards
 
 [cards](https://api.hearthstonejson.com/v1/latest/enUS/cards.json)
 
-output
-------
+test output
+===========
+
+json stats
+----------
 
 shuffle
 -------
@@ -810,4 +588,4 @@ overload
 workflow
 ========
 
-    stack build --exec "$(stack path --local-install-root)/bin/hheartstone" --exec "$(stack path --local-bin)/pandoc -f markdown+lhs -i src/Hearth.lhs -t markdown -o other/api.md --filter pandoc-include --mathjax" --exec "$(stack path --local-bin)/pandoc -f markdown -i other/readme_.md -t markdown -o readme.md --filter pandoc-include --mathjax" --file-watch
+    stack build --exec "$(stack path --local-install-root)/bin/hheartstone" --exec "$(stack path --local-bin)/pandoc -f markdown -i other/readme_.md -t markdown -o readme.md --filter pandoc-include --mathjax"

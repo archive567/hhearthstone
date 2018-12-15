@@ -1,12 +1,14 @@
 ``` {.sourceCode .literate .haskell}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Hearth where
 
-import Protolude hiding (First)
+import NumHask.Prelude hiding (First)
 import System.Random.MWC
 import Control.Monad.Primitive
 import qualified Data.HashMap.Strict as Map
@@ -35,7 +37,7 @@ data Card = Card
   , cardClass :: CardClass
   , race :: Maybe Text
   , spellDamage :: Maybe Int
-  , overload :: Maybe Int
+  , overloaded :: Maybe Int
   , durability :: Maybe Int
   , targetText :: Maybe Text
   , entourage :: Maybe [Id]
@@ -44,6 +46,68 @@ data Card = Card
 
 instance Eq Card where
   (==) a b = id a == id b
+
+data CardStats = CardStats
+  { cardCount :: Double
+  , costs :: Double
+  , attacks :: Double
+  , healths :: Double
+  , overloadeds :: Double
+  , durabilitys :: Double
+  } deriving Show
+
+instance Magma (Sum CardStats) where
+  (Sum x) `magma` (Sum y) = Sum (plus' x y)
+    where
+      plus' :: CardStats -> CardStats -> CardStats
+      plus' (CardStats n c a h o d) (CardStats n' c' a' h' o' d') =
+        CardStats (n+n') (c+c') (a+a') (h+h') (o+o') (d+d')
+
+instance Unital (Sum CardStats) where
+  unit = Sum (CardStats 0 0 0 0 0 0)
+
+instance Associative (Sum CardStats)
+
+instance Commutative (Sum CardStats)
+
+instance Invertible (Sum CardStats) where
+  inv (Sum (CardStats n c a h o d)) = Sum (CardStats (negate n) (negate c) (negate a) (negate h) (negate o) (negate d))
+
+instance MultiplicativeAction CardStats Double where
+  (.*) (CardStats a b c d e f) x = CardStats (a*x) (b*x) (c*x) (d*x) (e*x) (f*x)
+  (*.) = flip (.*)
+
+instance MultiplicativeAction EvalCardConfig Double where
+  (.*) (EvalCardConfig a b c d) x = EvalCardConfig (a*x) (b*x) (c*x) (d*x)
+  (*.) = flip (.*)
+
+cardStat :: Card -> CardStats
+cardStat c =
+  CardStats
+  1
+  (fromIntegral $ cost c)
+  (fromIntegral $ attack c)
+  (fromIntegral $ health c)
+  (maybe 0 fromIntegral (overloaded c))
+  (maybe 0 fromIntegral (durability c))
+
+data EvalCardConfig = EvalCardConfig
+  { evalCount :: Double
+  , evalCost :: Double
+  , evalAttack :: Double
+  , evalHealth :: Double
+  }
+
+defaultCardsEval :: EvalCardConfig
+defaultCardsEval = EvalCardConfig
+  1
+  1
+  1
+  1
+
+evalCards :: EvalCardConfig -> CardStats -> Double
+evalCards (EvalCardConfig n' c' a' h') (CardStats n c a h _ _) =
+  sum [(n'*n), (c'*c), (a'*a), (h'*h)]
 
 data TAction = TAction { tdesc :: Text, taction :: Target -> [Event]}
 
@@ -131,6 +195,34 @@ initGame (cc1, c1) (cc2, c2) = do
     pure First <*>
     pure []
 
+data GameStats = GameStats
+  { firstStats :: PlayerStats
+  , secondStats :: PlayerStats
+  , turnStats :: PlayerTag
+  } deriving (Show)
+
+gameStats :: GameState -> GameStats
+gameStats g = GameStats (playerStats $ firstPlayer g) (playerStats $ secondPlayer g) (playerTurn g)
+
+data EvalGameConfig = EvalGameConfig
+  { evalFirst :: EvalPlayerConfig
+  , evalSecond :: EvalPlayerConfig
+  , evalTurn :: Double
+  }
+
+defaultGameEval :: EvalGameConfig
+defaultGameEval = EvalGameConfig
+  defaultPlayerEval
+  defaultPlayerEval
+  0
+
+evalGame :: EvalGameConfig -> GameStats -> Double
+evalGame (EvalGameConfig f s t) (GameStats f' s' t') =
+  sum [(evalPlayer f f'), (negate $ evalPlayer s s')] +
+  case t' of
+    First -> -1 * t
+    Second -> 1 * t
+
 data Player = Player
   { deck :: [Card]
   , hand :: [Card]
@@ -139,7 +231,7 @@ data Player = Player
   , heroPower :: Card
   , weapon :: Maybe Card
   , mana :: Int
-  , overloads :: Int
+  , overload :: Int
   } deriving (Show)
 
 playerInit :: (MonadReader Env m) => PlayerTag -> CardClass -> [Card] ->
@@ -152,7 +244,44 @@ playerInit pt cc cs = do
         (Map.lookup cc (heroPowers env))
   let (n,c) = if pt==Hearth.First then (3,[]) else (4, [theCoin env])
   pure $ Player <$> pure (drop n cs) <*> pure (take n cs <> c) <*> pure []
-    <*> h <*> hp <*> pure Nothing <*> pure 10 <*> pure 0
+    <*> h <*> hp <*> pure Nothing <*> pure 0 <*> pure 0
+
+data PlayerStats = PlayerStats
+  { deckStats :: CardStats
+  , handStats :: CardStats
+  , boardStats :: CardStats
+  , manaStat :: Double
+  , heroHealth :: Double
+  } deriving (Show)
+
+playerStats :: Player -> PlayerStats
+playerStats p =
+  PlayerStats
+  (sum (cardStat <$> deck p))
+  (sum (cardStat <$> hand p))
+  (sum (cardStat <$> board p))
+  (fromIntegral $ mana p - overload p)
+  (fromIntegral $ health (hero p))
+
+data EvalPlayerConfig = EvalPlayerConfig
+  { evalDeck :: EvalCardConfig
+  , evalHand :: EvalCardConfig
+  , evalBoard :: EvalCardConfig
+  , evalMana :: Double
+  , evalHeroHealth :: Double
+  }
+
+defaultPlayerEval :: EvalPlayerConfig
+defaultPlayerEval = EvalPlayerConfig
+  ((0.2 :: Double) *. defaultCardsEval)
+  ((0.6 :: Double) *. defaultCardsEval)
+  ((1 :: Double) *. defaultCardsEval)
+  1
+  1
+
+evalPlayer :: EvalPlayerConfig -> PlayerStats -> Double
+evalPlayer (EvalPlayerConfig d h b m hh) (PlayerStats d' h' b' m' hh') =
+  sum [(evalCards d d'), (evalCards h h'), (evalCards b b'), (hh'*hh), (m*m')]
 
 data PlayerTag = First | Second deriving (Eq, Show)
 

@@ -1,0 +1,10 @@
+:set -XNoImplicitPrelude
+:set -XDataKinds
+:set -XOverloadedLists
+:set -XExtendedDefaultRules
+:set -XTypeApplications
+:set -XDataKinds
+import Control.Lens hiding (Magma)
+import Data.Generics.Product (field)
+import NumHask.Prelude
+

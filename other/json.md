@@ -1,6 +1,6 @@
 shuffle
 ---
-<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/GVG_005.png'><img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/CS2_028.png'><img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/ICC_838.png'>card set stats
+<img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/OG_120.png'><img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/HERO_08b.png'><img src='https://art.hearthstonejson.com/v1/render/latest/enUS/256x/EX1_274.png'>card set stats
 ---
 
 ```
